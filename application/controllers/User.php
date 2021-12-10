@@ -7,6 +7,7 @@ class User extends CI_Controller
         parent::__construct();
         cek_login();
     }
+    
     function index()
     {
         $data['judul'] = 'Profil Saya';
