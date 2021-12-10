@@ -63,6 +63,7 @@ class ModelBuku extends CI_Model
     {
         $this->db->update('kategori', $data, $where);
     }
+    
     //join
     public function joinKategoriBuku($where)
     {
