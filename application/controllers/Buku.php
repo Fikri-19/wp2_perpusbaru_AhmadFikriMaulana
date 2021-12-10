@@ -2,6 +2,117 @@
 
 class Buku extends CI_Controller
 {
+    
+    //manajemen Buku
+    function index()
+    {
+        $email  = $this->session->userdata('email');
+        $data   = [
+            'judul'     => "Data Buku",
+            'user'      => $this->db->get_where('user', ['email' => $email])->row_array(),
+            'buku'      => $this->ModelBuku->getBuku()->result_array()
+        ];
+        $this->_rules();
+        //konfigurasi sebelum gambar diupload
+        $config['upload_path']      = './assets/img/upload/';
+        $config['allowed_types']    = 'jpg|png|jpeg';
+        $config['max_size']         = '3000';
+        $config['max_width']        = '1024';
+        $config['max_height']       = '1000';
+        $config['file_name']        = 'img' . time();
+        $this->load->library('upload', $config);
+        if ($this->form_validation->run() == false) {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('buku/index', $data);
+            $this->load->view('templates/footer');
+        } else {
+            if ($this->upload->do_upload('image')) {
+                $image  = $this->upload->data();
+                $gambar = $image['file_name'];
+            } else {
+                $gambar = '';
+            }
+            $data = [
+                'judul_buku'    => $this->input->post('judul_buku', true),
+                'id_kategori'   => $this->input->post('id_kategori', true),
+                'pengarang'     => $this->input->post('pengarang', true),
+                'penerbit'      => $this->input->post('penerbit', true),
+                'tahun_terbit'  => $this->input->post('tahun', true),
+                'isbn'          => $this->input->post('isbn', true),
+                'stok'          => $this->input->post('stok', true),
+                'dipinjam'      => 0,
+                'dibooking'     => 0,
+                'image'         => $gambar
+            ];
+            $this->ModelBuku->simpanBuku($data);
+            redirect('buku', 'refresh');
+        }
+    }
+
+    function hapusBuku()
+    {
+        $where  = ['id' => $this->uri->segment(3)];
+        $this->ModelBuku->hapusBuku($where);
+        redirect('buku', 'refresh');
+    }
+
+    function ubahBuku()
+    {
+        $id     = $this->uri->segment(3);
+        $email  = $this->session->userdata('email');
+        $data   = [
+            'judul'     => "Ubah Data Buku",
+            'user'      => $this->db->get_where('user', ['email' => $email])->row_array(),
+            'buku'      => $this->ModelBuku->bukuWhere(['id' => $id])->result_array(),
+        ];
+        $kategori = $this->ModelBuku->joinKategoriBuku(['buku.id' => $this->uri->segment(3)])->result_array();
+        foreach ($kategori as $k) {
+            $data['id'] = $k['id_kategori'];
+            $data['k']  = $k['kategori'];
+        }
+        $data['kategori'] = $this->ModelBuku->getKategori()->result_array();
+        //konfigurasi sebelum gambar diupload
+        $config['upload_path']      = './assets/img/upload/';
+        $config['allowed_types']    = 'jpg|png|jpeg';
+        $config['max_size']         = '3000';
+        $config['max_width']        = '1024';
+        $config['max_height']       = '1000';
+        $config['file_name']        = 'img' . time();
+        //memuat atau memanggil library upload
+        $this->_rules();
+        $this->load->library('upload', $config);
+        if ($this->form_validation->run() == false) {
+            $this->load->view('templates/header', $data);
+            $this->load->view('templates/sidebar', $data);
+            $this->load->view('templates/topbar', $data);
+            $this->load->view('buku/ubah_buku', $data);
+            $this->load->view('templates/footer');
+        } else {
+            if ($this->upload->do_upload('image')) {
+                $image  = $this->upload->data();
+                unlink('assets/img/upload/' . $this->input->post('old_pict', TRUE));
+                $gambar = $image['file_name'];
+            } else {
+                $gambar = $this->input->post('old_pict', TRUE);
+            }
+            $data = [
+                'judul_buku'    => $this->input->post('judul_buku', true),
+                'id_kategori'   => $this->input->post('id_kategori', true),
+                'pengarang'     => $this->input->post('pengarang', true),
+                'penerbit'      => $this->input->post('penerbit', true),
+                'tahun_terbit'  => $this->input->post('tahun', true),
+                'isbn'          => $this->input->post('isbn', true),
+                'stok'          => $this->input->post('stok', true),
+                'image'         => $gambar
+            ];
+            $this->ModelBuku->updateBuku($data, ['id' => $this->input->post('id')]);
+            redirect('buku', 'refresh');
+        }
+    }
+
+    
     //manajemen kategori
     function kategori()
     {
