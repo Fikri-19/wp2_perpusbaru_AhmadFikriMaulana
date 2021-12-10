@@ -57,15 +57,29 @@ Ubah Profile Anda untuk Ubah Photo Profil</div>');
                         }                         
                         redirect('user'); 
                     } 
+                    
                 } else { 
-                    $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">Password salah!!</div>');                     redirect('autentifikasi'); 
+                    $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">Password salah!!</div>');                     
+                    redirect('autentifikasi'); 
                 } 
             } else { 
-                $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">User belum diaktifasi!!</div>');                 redirect('autentifikasi'); 
+                $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">User belum diaktifasi!!</div>');                 
+                redirect('autentifikasi'); 
             } 
         } else { 
-            $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">Email tidak terdaftar!!</div>');             redirect('autentifikasi'); 
-        } 
+            $this->session->set_flashdata('pesan', '<div class="alert alert-danger alert-message" role="alert">Email tidak terdaftar!!</div>');             
+            redirect('autentifikasi'); 
+        }    
     } 
  
+    public function blok()
+    {
+        $this->load->view('autentifikasi/blok');
+    }
+
+    public function gagal()
+    {
+        $this->load->view('autentifikasi/gagal');
+    }
+
 } 
